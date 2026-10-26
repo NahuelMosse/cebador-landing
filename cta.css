@@ -1,0 +1,33 @@
+/* B: riel de aluminio renderizado + anilla real que se desliza */
+.cta-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.rail { --q: 0; position: relative; width: 100%; aspect-ratio: 1120 / 260; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; transition: transform 120ms ease-out, opacity 220ms; filter: drop-shadow(0 14px 22px color-mix(in oklab, var(--c3) 45%, transparent)); }
+.rail.press { transform: translateY(3px) scale(.985); cursor: grabbing; }
+.rail.snap { animation: rsnap 480ms var(--pop); }
+@keyframes rsnap { 0% { transform: scale(1); } 35% { transform: scale(1.04); } 100% { transform: scale(1); } }
+.cta-wrap.open > .rail { opacity: 0; pointer-events: none; transform: scale(.95) translateY(8px); }
+.rail-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.rail-fill { position: absolute; left: 9%; top: 23%; height: 54%; width: calc(82% * var(--q)); border-radius: 999px; background: linear-gradient(90deg, var(--c3), var(--c3b)); mix-blend-mode: multiply; opacity: .85; pointer-events: none; }
+.rail-tab { position: absolute; top: 50%; left: calc((27.4% + 45.2% * var(--q))); width: 35.7%; aspect-ratio: 400 / 220; translate: -50% -50%; min-height: 48px; padding: 0; z-index: 1; filter: drop-shadow(0 5px 6px rgba(0, 0, 0, .35)); }
+.rail-tab img { width: 100%; height: 100%; pointer-events: none; }
+.rail-tab:focus-visible { outline: 3px solid var(--c5); outline-offset: 2px; border-radius: 40px; }
+.rail-txt { position: absolute; left: 49%; top: 50%; translate: 0 -50%; z-index: 2; display: grid; gap: 2px; color: #1d070d; pointer-events: none; text-shadow: 0 1px 0 rgba(255, 255, 255, .5); }
+.rail-txt b { font: italic 900 clamp(24px, 7vw, 30px)/1 var(--display); font-variation-settings: 'SOFT' 100, 'WONK' 1; }
+.rail-txt small { font: 700 clamp(11px, 3.1vw, 13px)/1.1 var(--text); white-space: nowrap; }
+.build .cta-add { min-width: 0; padding: 0 12px; justify-content: center; }
+.build .cta-add .cta-txt { min-width: 0; text-align: center; }
+.build .cta-add .cta-txt b { font-size: 16px; line-height: 1.1; white-space: normal; }
+.rail-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+#fizz { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 4; pointer-events: none; }
+
+/* foco de la apertura (--fq 0..1 sigue al riel): las palabras se apartan, el fondo y el resto del hero bajan */
+.h-back { transform: translateX(calc(var(--fq, 0) * -18vw)); opacity: calc(1 - var(--fq, 0) * 2.2); }
+.h-front { transform: translateX(calc(var(--fq, 0) * 18vw)); opacity: calc(1 - var(--fq, 0) * 2.2); }
+.bg { filter: brightness(calc(1 - var(--fq, 0) * .4)); }
+.nav .logo, .nav .pill { opacity: calc(1 - var(--fq, 0) * .7); }
+.dock-copy, .chips { opacity: calc(1 - var(--fq, 0) * .85); }
+.h-scroll { opacity: calc(1 - var(--fq, 0)); }
+@media (prefers-reduced-motion: reduce) { .h-back, .h-front, .bg, .nav .logo, .nav .pill, .dock-copy, .chips, .h-scroll { transform: none; opacity: 1; filter: none; } }
+
+/* la lista de sabores ocupa todo el ancho: no tapa la zona de arrastre de la lata */
+.sab-list { pointer-events: none; }
+.sab-list .sl { pointer-events: auto; }

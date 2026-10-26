@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es-AR" data-flavor="pomelo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cebador — mate frío con gas</title>
+<meta name="description" content="Cebador: yerba mate misionera infusionada en frío, con gas y en lata. Pomelo, menta-limón y maracuyá.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts.css">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="cta.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<div class="curtain" aria-hidden="true"><span class="curtain-mark">Cebador</span></div>
+<div class="ring" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav" data-in>
+  <a class="logo" href="#inicio" aria-label="Cebador, inicio"><svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M13 22c2-7 9-9 14-6-1 7-7 11-14 6z" fill="currentColor"/></svg><span>Cebador</span></a>
+  <nav class="pill" aria-label="Principal">
+    <i class="pill-ind" aria-hidden="true"></i>
+    <a href="#inicio" class="is-active">Inicio</a><a href="#sabores">Sabores</a><a href="#origen">Origen</a><a href="#resenas">Reseñas</a><a href="#comprar">Comprar</a>
+  </nav>
+  <button class="btn btn-ghost nav-cta" id="cartBtn" type="button" aria-haspopup="dialog" aria-controls="drawer"><span>Mi caja</span><b class="cart-n" id="cartN">0</b></button>
+</header>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="arch" id="arch" aria-hidden="true"></div>
+
+<main>
+  <!-- HERO -->
+  <section id="inicio" class="hero">
+    <h1 class="hero-h1"><span class="h-back"><span class="hw" data-hw>Mate</span></span> <span class="h-front"><span class="hw" data-hw>con gas.</span></span></h1>
+
+    <div class="dock" id="dock" data-in>
+      <p class="dock-copy">Yerba misionera infusionada en frío, burbuja fina y cero azúcar refinada. Abrís, suena el chasquido y se te va el calor.</p>
+      <div class="chips" role="radiogroup" aria-label="Elegí un sabor">
+        <button class="chip" type="button" role="radio" aria-checked="true" data-flavor="pomelo">Pomelo</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-flavor="menta">Menta-limón</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-flavor="maracuya">Maracuyá</button>
+      </div>
+      <div class="cta-wrap" id="ctaWrap">
+        <div id="ctaSrc" hidden><b id="ctaL1">Abrir Pomelo · $16.400</b><small class="cta-l2">Caja x6</small></div>
+        <div class="build" id="build" inert>
+          <div class="build-hd"><span>Armá tu caja · <b data-f="short">Pomelo</b></span><button class="link-btn" id="closeCan" type="button">Cerrar lata</button></div>
+          <div class="sizes" role="radiogroup" aria-label="Cantidad de latas" id="sizes"></div>
+          <div class="build-row"><div class="odo" id="odo" aria-hidden="true"></div><span class="sr-only" id="odoSr" aria-live="polite"></span><button class="cta cta-add" id="addBox" type="button"><span class="cta-txt"><b id="addL">Sumar a la caja</b></span></button></div>
+        </div>
+      </div>
+      <p class="sr-only" id="ctaHint">Deslizá la anilla hasta el final, o presioná Enter o Espacio, para abrir la lata. Después elegís cuántas latas.</p>
+    </div>
+
+    <a class="h-scroll" href="#sabores" data-in><i aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span><small>Cosecha 2026</small><b>Montecarlo, Misiones</b></span></a>
+  </section>
+
+  <!-- SABORES -->
+  <section id="sabores" class="sab">
+    <div class="ribbon" aria-hidden="true"><div class="ribbon-in" data-ribbon><span>Menta-limón ✶ Maracuyá ✶ Cebá otra ✶ Pomelo ✶ Menta-limón ✶ Maracuyá ✶ Cebá otra ✶ Pomelo ✶ </span></div></div>
+    <div class="marquee" aria-hidden="true"><div class="marquee-in" data-marquee><span>frío con gas · misionero · sin azúcar refinada · frío con gas · misionero · sin azúcar refinada · </span></div></div>
+    <div class="sab-copy">
+      <p class="sab-count"><b data-f="idx">01</b><span>/ 03</span></p>
+      <h2 class="flavor-name" data-f="short" data-swap>Pomelo</h2>
+      <p class="flavor-sub" data-f="sub" data-swap>rosado, con una pizca de sal</p>
+      <p class="flavor-line" data-f="line" data-swap>Pomelo rosado recién exprimido y la yerba bien atrás.</p>
+      <div class="stickers" aria-hidden="true"><span>0 g azúcar refinada</span><span>cafeína natural</span><span>354 ml</span></div>
+      <div class="meters" data-reveal="meters">
+        <div class="meter"><span>Dulzor</span><i><b data-m="dulzor"></b></i></div>
+        <div class="meter"><span>Amargor</span><i><b data-m="amargor"></b></i></div>
+        <div class="meter"><span>Burbuja</span><i><b data-m="burbuja"></b></i></div>
+      </div>
+      <div class="buy-row">
+        <button class="btn btn-ghost" id="addOne" type="button"><span>Sumar una lata</span></button>
+        <p class="price"><b data-f="price">$2.900</b><span>lata 354 ml</span></p>
+      </div>
+    </div>
+    <div class="sab-list" role="radiogroup" aria-label="Sabores">
+      <button class="sl" type="button" role="radio" aria-checked="true" data-flavor="pomelo"><span>01</span><b>Pomelo</b></button>
+      <button class="sl" type="button" role="radio" aria-checked="false" data-flavor="menta"><span>02</span><b>Menta-limón</b></button>
+      <button class="sl" type="button" role="radio" aria-checked="false" data-flavor="maracuya"><span>03</span><b>Maracuyá</b></button>
+    </div>
+  </section>
+
+  <!-- ORIGEN -->
+  <section id="origen" class="ori">
+    <div class="ori-head">
+      <h2 data-reveal="mask">De la tierra colorada de Misiones a tu mano, sin apuro.</h2>
+      <p data-reveal="rise">La yerba se cosecha en Montecarlo, se estaciona catorce meses y recién ahí se infusiona en frío durante doce horas. Todo lo demás es fruta, agua y gas.</p>
+    </div>
+    <div class="ori-body">
+      <figure class="map" data-reveal="draw">
+        <svg viewBox="0 0 520 560" role="img" aria-label="Curvas de nivel de la provincia de Misiones con Montecarlo marcado">
+          <g id="ctg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></g>
+          <g class="pin"><circle cx="292" cy="312" r="8" fill="#c8431b"/><circle class="pin-ring" cx="292" cy="312" r="8" fill="none" stroke="#c8431b" stroke-width="2"/></g>
+          <text x="312" y="304" class="map-t">Montecarlo</text><text x="312" y="324" class="map-s">26°34′ S · 54°45′ O</text>
+        </svg>
+      </figure>
+      <ul class="stats">
+        <li data-reveal="stat"><b><span data-count="14">14</span></b><span>meses de estacionamiento de la hoja</span></li>
+        <li data-reveal="stat"><b><span data-count="12">12</span> hs</b><span>de infusión en frío, nunca hervida</span></li>
+        <li data-reveal="stat"><b><span data-count="0">0</span> g</b><span>de azúcar refinada, endulza la fruta y la stevia</span></li>
+        <li data-reveal="stat"><b><span data-count="100">100</span> %</b><span>yerba de productores misioneros</span></li>
+      </ul>
+    </div>
+    <ul class="ing" aria-label="Ingredientes (tocá uno para ver el sabor)">
+      <li><button type="button" data-ing=""><span class="ing-n">01</span><b>Yerba mate canchada</b><em>Montecarlo, Misiones</em><i aria-hidden="true">↓</i></button></li>
+      <li><button type="button" data-ing="pomelo"><span class="ing-n">02</span><b>Jugo de pomelo rosado</b><em>Concordia, Entre Ríos</em><i aria-hidden="true">↓</i></button></li>
+      <li><button type="button" data-ing="menta"><span class="ing-n">03</span><b>Lima y menta fresca</b><em>Tafí Viejo, Tucumán</em><i aria-hidden="true">↓</i></button></li>
+      <li><button type="button" data-ing="maracuya"><span class="ing-n">04</span><b>Pulpa de maracuyá</b><em>Jujuy y Misiones</em><i aria-hidden="true">↓</i></button></li>
+      <li><button type="button" data-ing=""><span class="ing-n">05</span><b>Agua mineral gasificada</b><em>Sierras de Córdoba</em><i aria-hidden="true">↓</i></button></li>
+      <li><button type="button" data-ing=""><span class="ing-n">06</span><b>Stevia en hoja</b><em>San Pedro, Misiones</em><i aria-hidden="true">↓</i></button></li>
+    </ul>
+  </section>
+
+  <!-- RESEÑAS -->
+  <section id="resenas" class="rev">
+    <div class="rev-top">
+      <h2 data-reveal="mask">Ya se toma en la calle.</h2>
+      <p class="score" data-reveal="rise"><b>4,8</b><span>sobre 5, según 2.314 reseñas de latas abiertas</span></p>
+    </div>
+    <div class="rev-grid">
+      <blockquote class="rv rv-big" data-reveal="card" data-from="left">
+        <p>“Llegué del laburo con la remera pegada. Abrí la de pomelo, ese chasquido y listo: me reconcilié con el verano.”</p>
+        <footer><i class="av" style="--h:#ff6b6b">M</i><span><b>Martina R.</b>Palermo, Buenos Aires</span></footer>
+      </blockquote>
+      <blockquote class="rv rv-acc" data-reveal="card" data-from="right">
+        <p>“Soy de cebar todo el día y pensé que esto era una herejía. Es la mejor herejía que probé.”</p>
+        <footer><i class="av" style="--h:#1d070d">T</i><span><b>Tomás B.</b>Rosario</span></footer>
+      </blockquote>
+      <blockquote class="rv rv-glass" data-reveal="card" data-from="left">
+        <p>“La de menta-limón en la terraza, con hielo. No hace falta más.”</p>
+        <footer><i class="av" style="--h:#4fd69c">C</i><span><b>Cami P.</b>Córdoba</span></footer>
+      </blockquote>
+      <blockquote class="rv rv-wide" data-reveal="card" data-from="right">
+        <p>“Maracuyá sin el empalago de siempre. Me llevé un pack al recital y volvió vacío.”</p>
+        <footer><i class="av" style="--h:#ffb81f">L</i><span><b>Lucho G.</b>Montevideo</span></footer>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- COMPRAR -->
+  <section id="comprar" class="shop">
+    <div class="shop-l">
+      <h2 data-reveal="mask">Dónde encontrar la lata.</h2>
+      <div class="tabs" role="radiogroup" aria-label="Ciudad" id="cityTabs"></div>
+      <ul class="stores" id="storeList" aria-live="polite"></ul>
+    </div>
+    <aside class="pack" data-reveal="pack">
+      <div class="pack-cans" aria-hidden="true"><img alt="" data-thumb="menta"><img alt="" data-thumb="maracuya"><img alt="" data-thumb="pomelo"></div>
+      <h3>Pack x6, tres sabores</h3>
+      <p>Dos de cada una, con envío en 48 hs a todo el AMBA.</p>
+      <p class="pack-price"><b>$16.900</b><s>$18.300</s></p>
+      <button class="btn btn-light" id="addMix" type="button"><span>Sumar el pack</span></button>
+    </aside>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-top">
+    <form class="news" id="news" novalidate>
+      <label for="mail">Enterate primero cuando salga el próximo sabor.</label>
+      <div class="news-row"><input id="mail" type="email" placeholder="tu@mail.com" autocomplete="email" required aria-describedby="newsMsg"><button class="btn btn-light" type="submit">Avisame</button></div>
+      <p class="news-msg" id="newsMsg" role="status"></p>
+    </form>
+    <nav class="foot-links" aria-label="Pie"><a href="#sabores">Sabores</a><a href="#origen">Origen</a><a href="#resenas">Reseñas</a><a href="#comprar">Comprar</a></nav>
+  </div>
+  <p class="foot-small">Cebador es una marca ficticia creada para este ejercicio. El nombre no es una marca registrada y cualquier parecido con una marca real es involuntario. Contiene cafeína, no recomendado para menores de 12 años ni embarazadas. Disfrutalo bien frío.</p>
+  <div class="foot-word" aria-hidden="true"><span>Cebador</span></div>
+</footer>
+
+<!-- barra pegajosa: solo dentro de #comprar, con la selección -->
+<div class="sticky" id="sticky" aria-hidden="true">
+  <button class="sticky-sel" id="stickySize" type="button" aria-label="Cambiar cantidad de latas"><i class="dot" aria-hidden="true"></i><span id="stickyL">Pomelo · 6 latas</span></button>
+  <button class="cta cta-sm" id="stickyAdd" type="button"><span class="cta-txt"><b id="stickyP">Sumar · $16.400</b></span></button>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerT" inert>
+  <div class="drawer-hd"><h2 id="drawerT">Tu caja</h2><button class="x" id="drawerX" type="button" aria-label="Cerrar">✕</button></div>
+  <ul class="lines" id="lines"></ul>
+  <p class="empty" id="empty">Todavía no hay nada. Abrí una lata y armá tu caja.</p>
+  <div class="drawer-ft">
+    <p class="total"><span>Total</span><b id="total">$0</b></p>
+    <button class="btn btn-light" id="goHero" type="button"><span>Elegir un sabor</span></button>
+    <button class="btn btn-ghost" id="checkout" type="button"><span>Finalizar pedido</span></button>
+  </div>
+  <div class="done" id="done" hidden><b>Pedido armado ✓</b><p id="doneMsg"></p><button class="btn btn-light" id="doneX" type="button"><span>Seguir mirando</span></button></div>
+</aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<script src="flavors.js"></script>
+<script src="can2d.js"></script>
+<script src="main.js"></script>
+<script src="shop.js"></script>
+<script src="cta.js"></script>
+</body>
+</html>
