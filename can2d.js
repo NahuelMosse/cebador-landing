@@ -210,6 +210,10 @@
   addEventListener('pointermove', e => { mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = e.clientY / innerHeight * 2 - 1; }, { passive: true });
   const t0 = performance.now(); let last = t0;
   const bg = document.querySelector('.bg'); let glow = null;
+  // sin entrada durante 3 s tras la intro, el balanceo y las burbujas descansan (la ultima imagen queda dibujada) y el cuadro no escribe nada
+  const html = document.documentElement; let lastInput = performance.now(), swayT = 0;
+  const wake = () => { lastInput = performance.now(); };
+  ['scroll', 'pointermove', 'pointerdown', 'wheel', 'touchstart', 'keydown', 'resize'].forEach(type => addEventListener(type, wake, { passive: true }));
   function frame(now) {
     requestAnimationFrame(frame);
     if (document.hidden) return;
@@ -217,7 +221,10 @@
     if (hide) slots.forEach(o => put(o, 'visibility', 'hidden'));
     put(hitBox, 'pointerEvents', (hide || (reduced && !heroMode())) ? 'none' : 'auto'); const tabIdx = hide ? -1 : 0; if (hit.tabIndex !== tabIdx) hit.tabIndex = tabIdx;
     if (hide) return;
+    if (html.dataset.ready !== '1') lastInput = now;
+    const rest = StageState.resting({ lastInput, now });
     const t = (now - t0) / 1000, dt = Math.min((now - last) / 1000, .05); last = now;
+    if (!rest) swayT += dt;
     mouse.sx += (mouse.x - mouse.sx) * .06; mouse.sy += (mouse.y - mouse.sy) * .06;
     // sabores: giro con inercia y, en reposo, vuelve a quedar de frente
     if (!dragging && Math.abs(vel) > .005) { dragF += vel; vel *= Math.pow(.92, dt * 60); }
@@ -231,7 +238,7 @@
     const bodyH = lerp(hero.s, sab.s, p) * H * S.pop * (1 + stage.jolt * (reduced ? 0 : .035)) * (1 + fq * (mobile ? .46 : .26));
     const op = S.open, shk = Math.max(0, op - .45) * 1.8 * f;
     const cx = lerp(W * (.5 + lerp(hero.x, sab.x, p)), W * .5, fq) + Math.sin(t * 95) * shk * 5 + mouse.sx * 8 * f * (1 - fq);
-    const cy = H * (.5 - lerp(hero.y, sab.y, p)) + S.drop * H * 1.1 + Math.sin(t * 1.1) * H * .008 * f * (1 - fq) + Math.cos(t * 83) * shk * 4 + fq * H * (mobile ? .115 : .105);
+    const cy = H * (.5 - lerp(hero.y, sab.y, p)) + S.drop * H * 1.1 + Math.sin(swayT * 1.1) * H * .008 * f * (1 - fq) + Math.cos(t * 83) * shk * 4 + fq * H * (mobile ? .115 : .105);
     const rz = -(lerp(hero.z, sab.z, p) + S.drop * .5) * 180 / Math.PI * .35 + op * 4;
     const total = reduced ? 0 : S.spin * NF + dragF;
     const ci = ORDER.indexOf(stage.flavor), n = ORDER.length;
@@ -256,13 +263,14 @@
     stage.pose.x = cx; stage.pose.y = cy; stage.pose.h = bodyH;
     const nextGlow = { x: (cx / W * 100).toFixed(1) + '%', y: (cy / H * 100).toFixed(1) + '%' };
     if (StageState.glowChanged(glow, nextGlow)) { glow = nextGlow; bg.style.setProperty('--gx', glow.x); bg.style.setProperty('--gy', glow.y); }
+    if (rest) return;
     // burbujas planas
     cx2.setTransform(dpr, 0, 0, dpr, 0, 0); cx2.clearRect(0, 0, W, H);
     const ink = F[stage.flavor].label.ink; cx2.strokeStyle = ink; cx2.fillStyle = ink; cx2.lineWidth = 1.4;
     for (let i = 0; i < NB; i++) {
       const b = bd[i]; b.y = (b.y - b.v * .012 * (reduced ? 0 : 1) * (1 + S.burst * 9) + 1) % 1;
       const r = b.s * S.bub * (1 + S.burst * 1.6); if (r < .5) continue;
-      const x = b.x * W + Math.sin(t * .8 + b.w) * 10 * f, y = b.y * H;
+      const x = b.x * W + Math.sin(swayT * .8 + b.w) * 10 * f, y = b.y * H;
       cx2.globalAlpha = .45; cx2.beginPath(); cx2.arc(x, y, r, 0, TAU); cx2.stroke();
       cx2.globalAlpha = .08; cx2.fill();
     }

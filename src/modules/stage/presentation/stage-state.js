@@ -4,6 +4,7 @@
   const READY_COUNT = 8;
   const POINTER_EPS = .1;
   const SMALL_FRAME_HEIGHT = 600;
+  const REST_AFTER_MS = 3000;
 
   // load order of the turn: 0, 24, 12, 36... so there is a usable spin from the first moment
   function turnOrder(nf = 48) {
@@ -23,7 +24,9 @@
 
   const frameSet = (drawnHeightCss, dpr, smallHeight = SMALL_FRAME_HEIGHT) => (drawnHeightCss * dpr <= smallHeight ? 'sm' : 'full');
 
-  const api = { turnOrder, READY_FRAMES, readyFrames, glowChanged, settled, extrasDue, frameSet };
+  const resting = ({ lastInput, now, after = REST_AFTER_MS }) => now - lastInput >= after;
+
+  const api = { turnOrder, READY_FRAMES, readyFrames, glowChanged, settled, extrasDue, frameSet, resting };
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.StageState = api;
 })(this);
