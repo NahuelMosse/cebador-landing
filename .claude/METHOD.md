@@ -79,5 +79,5 @@ The main thread compacts at 200k.
 
 `kit.mjs e2e <path>` sets `$E2E`; `kit.mjs rule-paths <rule> <globs>`, a rule's `paths:`.
 ```
-E2E=apps/e2e        # adjust to this repo's real path
+E2E=test        # adjust to this repo's real path
 ```

@@ -134,7 +134,7 @@
   });
   list.addEventListener('click', e => {
     const b = e.target.closest('.copy'); if (!b) return;
-    try { navigator.clipboard && navigator.clipboard.writeText(b.dataset.a).catch(() => { }); } catch (_) { }
+    try { navigator.clipboard && navigator.clipboard.writeText(b.dataset.a).catch(e => console.warn('copy address failed', e)); } catch (e) { console.warn('copy address failed', e); }
     b.textContent = 'Copiada ✓'; b.dataset.done = 'true'; toast('Dirección copiada');
     setTimeout(() => { b.textContent = 'Copiar dirección'; b.dataset.done = 'false'; }, 1600);
   });
@@ -161,14 +161,19 @@
 
   /* ---------- cinta y arco ---------- */
   const rib = $('[data-ribbon]'), sab = $('#sabores'), arch = $('#arch');
-  function onScroll() {
-    const y = scrollY, H = innerHeight;
-    if (!reduced) rib.style.transform = `translate3d(${-(y - sab.offsetTop + H) * .5}px,0,0)`;
-    const a = Math.min(1, Math.max(0, (y - (sab.offsetTop - H * .55)) / (H * .45)));
-    const b = 1 - Math.min(1, Math.max(0, (y - (sab.offsetTop + sab.offsetHeight - H * 1.05)) / (H * .35)));
-    arch.style.opacity = (a * b).toFixed(3);
+  const geo = { H: 0, top: 0, height: 0 }; let archOpacity = '';
+  function paintScroll() {
+    const y = scrollY, { H, top, height } = geo;
+    if (!reduced) rib.style.transform = `translate3d(${-(y - top + H) * .5}px,0,0)`;
+    const a = Math.min(1, Math.max(0, (y - (top - H * .55)) / (H * .45)));
+    const b = 1 - Math.min(1, Math.max(0, (y - (top + height - H * 1.05)) / (H * .35)));
+    const op = (a * b).toFixed(3); if (op === archOpacity) return;
+    archOpacity = op; arch.style.opacity = op;
   }
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  function measureGeo() { geo.H = innerHeight; geo.top = sab.offsetTop; geo.height = sab.offsetHeight; paintScroll(); }
+  addEventListener('scroll', FrameQueue.once(paintScroll), { passive: true });
+  FrameQueue.watchGeometry(measureGeo);
+  measureGeo();
 
   renderCart(); refresh();
 })();

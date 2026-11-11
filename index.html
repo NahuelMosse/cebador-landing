@@ -6,6 +6,9 @@
 <title>Cebador — mate frío con gas</title>
 <meta name="description" content="Cebador: yerba mate misionera infusionada en frío, con gas y en lata. Pomelo, menta-limón y maracuyá.">
 <link rel="icon" href="data:,">
+<link rel="preload" href="fonts/Fraunces.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Fraunces-Italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/SchibstedGrotesk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts.css">
 <script>document.documentElement.classList.add('js');</script>
 <link rel="stylesheet" href="styles.css">
@@ -13,6 +16,7 @@
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
 <section class="curtain" aria-label="Carga de la página"><span class="curtain-mark" aria-hidden="true">Cebador</span><progress class="curtain-bar" max="100" value="0" aria-label="Carga de la página"></progress><p class="curtain-status" role="status" aria-live="polite">Cargando 0 %</p></section>
 <div class="ring" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
@@ -192,6 +196,8 @@
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
 <script src="flavors.js"></script>
+<script src="src/modules/stage/presentation/stage-state.js"></script>
+<script src="src/modules/stage/presentation/frame-queue.js"></script>
 <script src="can2d.js"></script>
 <script src="main.js"></script>
 <script src="shop.js"></script>
