@@ -71,3 +71,5 @@ probe loading: node .claude/tools/app.mjs probe specs/CEB-1-loading-screen/steps
 - L4 · 2026-11-11 · ASM-07 · the idle sway and bubbles kept the page recalculating styles every frame (72 in 3 s); they rest after 3 s without input, the cheapest reading to undo
 - L5 · 2026-11-11 · T4 · grain.webp 17.9 KB 256 px sin blend, 0 backdrop-filter; node --test static-budget: grano y blur pasan; perf S5 3 y 8 frames >50 ms en 2 corridas (limite 5)
 - L6 · 2026-11-11 · T5 · fuentes 113+140+44 = 289 KB (pedido 250) con wght/SOFT/WONK/opsz intactos, preload de las 3 en index.html; static-budget falla solo en el tope de 250 KB
+- L7 · 2026-11-11 · T3 · .glow propio (will-change + translate3d) en vez de --gx/--gy sobre .bg; capturas antes/despues a 1440 y 390 (tope y scroll 450) iguales
+- L8 · 2026-11-11 · T5 · Fraunces roman solo en .odo .col i (digitos 0-9); subset a U+0030-0039 con los 4 ejes: 9,5 KB, total 188,5 KB; static-budget pasa
