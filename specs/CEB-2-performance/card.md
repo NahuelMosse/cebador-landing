@@ -59,6 +59,7 @@ mutate src/modules/stage/presentation/stage-state.js: node --test --test-force-e
 app: python -c "import os,http.server as h; h.ThreadingHTTPServer(('127.0.0.1', int(os.environ['PORT'])), h.SimpleHTTPRequestHandler).serve_forever()"
 perf: node --test --test-force-exit --test-concurrency=1 test/perf.e2e.mjs
 probe loading: node .claude/tools/app.mjs probe specs/CEB-1-loading-screen/steps/loading.json --axe --contrast ".curtain-status" --route "GET /assets/turn-b4/meta.json=hold" --out .validation/probe/loading
+refactor-tests: test/stage-state.test.mjs "a loop stops once it has settled @CEB-2-S3" asserted 10.1 against an epsilon of 0.1, which floating point makes 0.0999…, so the case moved to 10.125 and 10.0625 and two exact-epsilon cases were added; same tag, same rule
 ```
 
 - declared · mutate · can2d.js · DOM and canvas wiring: its decisions (when ready, which frames, when to write, when to stop) come from stage-state.js
