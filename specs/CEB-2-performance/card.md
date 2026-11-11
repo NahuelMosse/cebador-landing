@@ -73,3 +73,4 @@ probe loading: node .claude/tools/app.mjs probe specs/CEB-1-loading-screen/steps
 - L6 · 2026-11-11 · T5 · fuentes 113+140+44 = 289 KB (pedido 250) con wght/SOFT/WONK/opsz intactos, preload de las 3 en index.html; static-budget falla solo en el tope de 250 KB
 - L7 · 2026-11-11 · T3 · .glow propio (will-change + translate3d) en vez de --gx/--gy sobre .bg; capturas antes/despues a 1440 y 390 (tope y scroll 450) iguales
 - L8 · 2026-11-11 · T5 · Fraunces roman solo en .odo .col i (digitos 0-9); subset a U+0030-0039 con los 4 ejes: 9,5 KB, total 188,5 KB; static-budget pasa
+- L9 · 2026-11-11 · T3 · filter sobre .glow costaba ~2 s de DrawFrame por scroll en el compositor por software; el brightness de --fq pasa al color del degradado (mismo resultado en pixeles de fondo)
