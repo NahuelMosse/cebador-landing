@@ -65,3 +65,5 @@ probe loading: node .claude/tools/app.mjs probe specs/CEB-1-loading-screen/steps
 ## Log
 
 - L1 · arregla todo lo de cebador porfa
+- L2 · 2026-11-11 · T1 · node --test test/stage-state.test.mjs + loader-state*: 12 pass; mutate stage-state.js 30/31, 1 equivalent declared
+- L3 · 2026-11-11 · T2/T3 · perf.e2e.mjs on 1440x900: S1 1333 KB at ~1.8-2.2 s (fonts still unsubset), S8 pass, S2/S3 71 recalcs idle (idle bob of the can writes styles each frame; 0 without it), S5 108-116 frames over 50 ms (waits on T4 grain/blur)
