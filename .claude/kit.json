@@ -1,7 +1,7 @@
 {
   "kit": "6.47.0",
   "stack": null,
-  "e2e": "apps/e2e",
+  "e2e": "test",
   "rulePaths": {
     "architecture": [
       "apps/**",
