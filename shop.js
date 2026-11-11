@@ -161,14 +161,24 @@
 
   /* ---------- cinta y arco ---------- */
   const rib = $('[data-ribbon]'), sab = $('#sabores'), arch = $('#arch');
-  function onScroll() {
-    const y = scrollY, H = innerHeight;
-    if (!reduced) rib.style.transform = `translate3d(${-(y - sab.offsetTop + H) * .5}px,0,0)`;
-    const a = Math.min(1, Math.max(0, (y - (sab.offsetTop - H * .55)) / (H * .45)));
-    const b = 1 - Math.min(1, Math.max(0, (y - (sab.offsetTop + sab.offsetHeight - H * 1.05)) / (H * .35)));
-    arch.style.opacity = (a * b).toFixed(3);
+  const geo = { H: 0, top: 0, height: 0 }; let archOpacity = '';
+  function paintScroll() {
+    const y = scrollY, { H, top, height } = geo;
+    if (!reduced) rib.style.transform = `translate3d(${-(y - top + H) * .5}px,0,0)`;
+    const a = Math.min(1, Math.max(0, (y - (top - H * .55)) / (H * .45)));
+    const b = 1 - Math.min(1, Math.max(0, (y - (top + height - H * 1.05)) / (H * .35)));
+    const op = (a * b).toFixed(3); if (op === archOpacity) return;
+    archOpacity = op; arch.style.opacity = op;
   }
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  function measureGeo() { geo.H = innerHeight; geo.top = sab.offsetTop; geo.height = sab.offsetHeight; paintScroll(); }
+  let scrollQueued = false;
+  const onScroll = () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; paintScroll(); }); };
+  let measureQueued = false;
+  const queueMeasure = () => { if (measureQueued) return; measureQueued = true; requestAnimationFrame(() => { measureQueued = false; measureGeo(); }); };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('load', measureGeo); addEventListener('resize', queueMeasure); document.fonts.ready.then(measureGeo);
+  new ResizeObserver(queueMeasure).observe(document.body);
+  measureGeo();
 
   renderCart(); refresh();
 })();

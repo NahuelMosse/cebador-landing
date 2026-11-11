@@ -99,31 +99,53 @@
   window.__navPill = pi;
   links.forEach(a => { a.addEventListener('pointerenter', () => moveInd(a)); a.addEventListener('focus', () => moveInd(a)); a.addEventListener('pointerleave', () => moveInd(active)); a.addEventListener('blur', () => moveInd(active)); });
   const secs = ['inicio', 'sabores', 'origen', 'resenas', 'comprar'].map(id => document.getElementById(id));
-  function updActive() {
-    let idx = 0; secs.forEach((s, i) => { if (s.getBoundingClientRect().top <= innerHeight * .45) idx = i; });
+  function updActive(y) {
+    let idx = 0; geo.secTops.forEach((top, i) => { if (top - y <= geo.vh * .45) idx = i; });
     if (links[idx] !== active) { active.classList.remove('is-active'); active = links[idx]; active.classList.add('is-active'); moveInd(active); }
   }
   moveInd(active, true); document.fonts.ready.then(() => moveInd(active, true)); addEventListener('resize', () => moveInd(active, true));
 
   /* ---------- scroll: parallax y marquee ---------- */
   const marq = $('[data-marquee]'), sab = $('#sabores'), hb = $('.h-back'), hf = $('.h-front');
-  const par = [[$('.rv-acc'), -.07], [$('.rv-glass'), .05], [$('.pack-cans'), -.04]];
-  function onScroll() {
-    const y = scrollY;
-    if (reduced) { updActive(); return; }
-    marq.style.transform = `translate3d(${-(y - sab.offsetTop + innerHeight) * .32}px,0,0)`;
-    hb.style.translate = `0 ${y * .22}px`; hf.style.translate = `${y * -.08}px ${y * -.1}px`;
-    par.forEach(([el, s]) => { if (!el) return; const r = el.getBoundingClientRect(); el.style.translate = `0 ${(r.top + r.height / 2 - innerHeight / 2 - (parseFloat((el.style.translate || '0 0').split(' ')[1]) || 0)) * s}px`; });
-    updActive();
+  const par = [[$('.rv-acc'), -.07], [$('.rv-glass'), .05], [$('.pack-cans'), -.04]].filter(([el]) => el).map(([el, k]) => ({ el, k, center: 0, ty: 0 }));
+  // layout cache: scroll reads none of it from the DOM. Offsets come from the layout, so transforms in flight do not skew them
+  const geo = { vh: 0, sabTop: 0, secTops: [] };
+  const docTop = el => { let t = 0; for (let n = el; n; n = n.offsetParent) t += n.offsetTop; return t; };
+  function measureGeo() {
+    geo.vh = innerHeight; geo.sabTop = sab.offsetTop; geo.secTops = secs.map(docTop);
+    par.forEach(p => { p.center = docTop(p.el) + p.el.offsetHeight / 2; });
+    paintScroll();
   }
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  function paintScroll() {
+    const y = scrollY;
+    if (reduced) { updActive(y); return; }
+    marq.style.transform = `translate3d(${-(y - geo.sabTop + geo.vh) * .32}px,0,0)`;
+    hb.style.translate = `0 ${y * .22}px`; hf.style.translate = `${y * -.08}px ${y * -.1}px`;
+    par.forEach(p => { const ty = (p.center - y - geo.vh / 2) * p.k; if (ty === p.ty) return; p.ty = ty; p.el.style.translate = `0 ${ty}px`; });
+    updActive(y);
+  }
+  let scrollQueued = false;
+  const onScroll = () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; paintScroll(); }); };
+  let measureQueued = false;
+  const queueMeasure = () => { if (measureQueued) return; measureQueued = true; requestAnimationFrame(() => { measureQueued = false; measureGeo(); }); };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('load', measureGeo); addEventListener('resize', queueMeasure); document.fonts.ready.then(measureGeo);
+  new ResizeObserver(queueMeasure).observe(document.body);
+  measureGeo();
 
   /* ---------- cursor y magnéticos ---------- */
   if (fine && !reduced) {
-    const ring = $('.ring'); let tx = 0, ty = 0, rx = 0, ry = 0;
-    addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; ring.classList.add('on'); const hot = e.target.closest('a,button,input,.rv'); ring.classList.toggle('big', !!hot); }, { passive: true });
+    const ring = $('.ring'), target = { x: 0, y: 0 }, pos = { x: 0, y: 0 }; let ringRunning = false;
+    function loop() {
+      pos.x += (target.x - pos.x) * .2; pos.y += (target.y - pos.y) * .2; ring.style.transform = `translate(${pos.x}px,${pos.y}px)`;
+      if (StageState.settled(pos, target)) { ringRunning = false; return; }
+      requestAnimationFrame(loop);
+    }
+    addEventListener('pointermove', e => {
+      target.x = e.clientX; target.y = e.clientY; ring.classList.add('on'); const hot = e.target.closest('a,button,input,.rv'); ring.classList.toggle('big', !!hot);
+      if (!ringRunning) { ringRunning = true; requestAnimationFrame(loop); }
+    }, { passive: true });
     document.addEventListener('pointerleave', () => ring.classList.remove('on'));
-    (function loop() { rx += (tx - rx) * .2; ry += (ty - ry) * .2; ring.style.transform = `translate(${rx}px,${ry}px)`; requestAnimationFrame(loop); })();
     $$('[data-magnet]').forEach(el => {
       el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); g.to(el, { x: (e.clientX - r.left - r.width / 2) * .22, y: (e.clientY - r.top - r.height / 2) * .32, duration: .4, ease: 'power3.out' }); });
       el.addEventListener('pointerleave', () => g.to(el, { x: 0, y: 0, duration: .9, ease: 'elastic.out(1,.45)' }));
@@ -132,6 +154,13 @@
       el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5; g.to(el, { rotationY: px * 7, rotationX: -py * 7, transformPerspective: 900, y: -6, duration: .5, ease: 'power3.out', overwrite: 'auto' }); });
       el.addEventListener('pointerleave', () => g.to(el, { rotationY: 0, rotationX: 0, y: 0, duration: .9, ease: 'elastic.out(1,.55)', overwrite: 'auto' }));
     });
+  }
+
+  /* ---------- el ping del pin solo corre a la vista ---------- */
+  const ping = $('.pin-ring');
+  if (ping) {
+    ping.style.animationPlayState = 'paused';
+    new IntersectionObserver(([e]) => { ping.style.animationPlayState = e.isIntersecting ? 'running' : 'paused'; }).observe(ping);
   }
 
   /* ---------- reveals ---------- */
@@ -209,6 +238,8 @@
     } else { html.classList.add('no-gl'); $('#stage').style.display = 'none'; }
     intro();
   }
-  window.CanStage.ready.then(boot);
+  // the loader module runs before DOMContentLoaded; the intro waits for it so the curtain always leaves through it
+  const parsed = document.readyState === 'loading' ? new Promise(res => document.addEventListener('DOMContentLoaded', res, { once: true })) : Promise.resolve();
+  Promise.all([window.CanStage.ready, parsed]).then(([ok]) => boot(ok));
   setTimeout(() => { if (!started) boot(false); }, 9000);
 })();

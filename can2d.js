@@ -2,6 +2,7 @@
 (function () {
   const F = window.FLAVORS, ORDER = window.FLAVOR_ORDER;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const StageState = window.StageState;
   const TURN_DIR = 'assets/turn-b4';
   const TAU = Math.PI * 2, NF = 48;
   const S = { drop: 1, spin: 0, fruit: 0, bub: 0, pop: 1, open: 0, burst: 0 };
@@ -9,6 +10,8 @@
   window.CanStage = stage;
   let BF = .9, WR = 760 / 900, CYF = .5; // alto de la lata / alto del cuadro, ancho / alto, centro de la lata
   ORDER.forEach(k => { stage.thumbs[k] = `assets/can-${k}.webp`; });
+  // juego de cuadros: se decide una vez, segun el alto con que se dibuja la lata de frente en el inicio (.69 del alto en escritorio, .52 en celular)
+  const FRAMES_DIR = StageState.frameSet((innerWidth < 760 ? .52 : .69) * innerHeight / BF, devicePixelRatio || 1) === 'sm' ? 'assets/turn-sm' : TURN_DIR;
 
   // cinco ranuras de lata (-2..2): la del centro y las vecinas, todas de frente; las de |u|>1 solo existen durante el deslizamiento
   const NS = 5, slots = [];
@@ -17,11 +20,14 @@
     el.style.cssText = 'position:fixed;left:0;top:0;z-index:1;pointer-events:none;will-change:transform,opacity;transform-origin:50% 50%;visibility:hidden;';
     const c = document.createElement('canvas'); const side = i !== 2; c.width = side ? 456 : 760; c.height = side ? 540 : 900; c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
     el.appendChild(c); document.body.insertBefore(el, document.getElementById('stage'));
-    slots.push({ el, c, g: c.getContext('2d'), key: '' });
+    slots.push({ el, c, g: c.getContext('2d'), key: '', sty: {} });
   }
+  // escribe un estilo solo si su valor cambio
+  const put = (o, prop, v) => { if (o.sty[prop] === v) return; o.sty[prop] = v; o.el.style[prop] = v; };
   const holder = slots[2].el;
+  slots.forEach(o => { o.sty.visibility = 'hidden'; });
   const firstKey = stage.flavor;
-  stage.progress = { loaded: 0, total: (reduced ? 1 : NF) + 1 };
+  stage.progress = { loaded: 0, total: (reduced ? 1 : StageState.READY_FRAMES.length) + 1 };
   let frames = 0, metaDone = 0;
   const publish = () => { stage.progress.loaded = frames + metaDone; window.dispatchEvent(new CustomEvent('can:progress')); };
   const report = (k, n) => { if (k !== firstKey) return; frames = n; publish(); };
@@ -29,40 +35,86 @@
     .catch(e => { console.warn('can2d: meta.json', e); }).then(() => { metaDone = 1; publish(); });
 
   // zona tactil sobre la lata: desliza en horizontal para girar, el scroll vertical sigue siendo del navegador
-  const hit = document.createElement('div'); hit.id = 'canhit'; hit.tabIndex = 0; hit.setAttribute('role', 'region');
+  const hit = document.createElement('div'); hit.id = 'canhit'; const hitBox = { el: hit, sty: {} }; hit.tabIndex = 0; hit.setAttribute('role', 'region');
   hit.setAttribute('aria-label', 'Latas Cebador: arrastralas o usa las flechas izquierda y derecha para cambiar de sabor');
   hit.style.cssText = 'position:fixed;left:0;top:0;z-index:3;touch-action:pan-y;cursor:grab;pointer-events:none;outline-offset:-4px;-webkit-user-select:none;user-select:none;';
   document.body.insertBefore(hit, slots[NS - 1].el.nextSibling);
 
-  // cuadros: 0, 24, 12, 36... para que haya giro usable desde el primer momento
-  const seq = {}, got = {}; ORDER.forEach(k => { seq[k] = new Array(NF).fill(null); got[k] = 0; });
-  const ord = []; for (const st of [24, 12, 6, 3, 1]) for (let i = 0; i < NF; i += st) if (!ord.includes(i)) ord.push(i);
+  // la cortina se fue (data-loaded); si el cargador no avisa, a los 9 s se da por ida
+  let curtainGone = false;
+  const curtain = new Promise(res => {
+    const html = document.documentElement, gone = () => { curtainGone = true; res(); };
+    if (html.dataset.loaded === '1') { gone(); return; }
+    const watch = new MutationObserver(() => { if (html.dataset.loaded !== '1') return; watch.disconnect(); gone(); });
+    watch.observe(html, { attributes: true, attributeFilter: ['data-loaded'] });
+    setTimeout(gone, 9000);
+  });
+
+  // cuadros: el giro se carga en el orden de StageState.turnOrder; la cortina espera solo a los primeros (READY_FRAMES), el resto sigue cuando la cortina se fue
+  const seq = {}, got = {}, loading = {}; ORDER.forEach(k => { seq[k] = new Array(NF).fill(null); got[k] = 0; });
+  const ord = StageState.turnOrder(NF);
   function loadFlavor(k) {
-    return new Promise(res => {
-      if (reduced) { const im = new Image(); im.onload = () => { seq[k][0] = im; report(k, 1); res(); }; im.onerror = () => { report(k, 1); res(); }; im.src = stage.thumbs[k]; return; }
-      let n = 0, pos = 0, inflight = 0;
+    if (loading[k]) return loading[k];
+    if (reduced) {
+      const one = new Promise(res => { const im = new Image(); im.onload = () => { seq[k][0] = im; report(k, 1); res(); }; im.onerror = () => { report(k, 1); res(); }; im.src = stage.thumbs[k]; });
+      return (loading[k] = { ready: one, done: one });
+    }
+    const pending = new Set(StageState.readyFrames(ord)), readyTotal = pending.size;
+    let n = 0, pos = 0, inflight = 0, readyIn;
+    const ready = new Promise(res => { readyIn = res; });
+    const done = new Promise(res => {
       const next = () => {
-        while (inflight < 3 && pos < ord.length) {
+        while (inflight < 6 && pos < (curtainGone ? ord.length : readyTotal)) {
           const i = ord[pos++]; inflight++;
           const im = new Image(); im.decoding = 'async';
-          im.onload = im.onerror = () => { if (im.naturalWidth) { seq[k][i] = im; got[k]++; } inflight--; report(k, ++n); if (n === NF) res(); else next(); };
-          im.src = `${TURN_DIR}/${k}-${String(i).padStart(2, '0')}.webp`;
+          im.onload = im.onerror = () => {
+            if (im.naturalWidth) { seq[k][i] = im; got[k]++; }
+            inflight--; n++;
+            if (pending.delete(i)) { report(k, readyTotal - pending.size); if (!pending.size) readyIn(); }
+            if (n === NF) res(); else next();
+          };
+          im.src = `${FRAMES_DIR}/${k}-${String(i).padStart(2, '0')}.webp`;
         }
       };
-      next();
+      next(); curtain.then(next);
     });
+    return (loading[k] = { ready, done });
   }
-  const first = () => loadFlavor(stage.flavor);
-  stage.ready = Promise.all([first(), metaIn]).then(() => true);
-  stage.ready.then(() => loadOpen(stage.flavor));
-  stage.ready.then(() => ORDER.filter(k => k !== stage.flavor).reduce((p, k) => p.then(() => loadFlavor(k)), Promise.resolve()));
+  stage.ready = Promise.all([loadFlavor(stage.flavor).ready, metaIn]).then(() => true);
+
+  // extras (apertura y los otros sabores): cuando el navegador esta ocioso tras irse la cortina, o al primer gesto sobre los sabores o el boton de abrir; lo que ocurra primero, una vez
+  const extra = { idle: false, interacted: false }; let curtainUp = false, extrasStarted = false;
+  function startExtras() {
+    if (extrasStarted) return; extrasStarted = true;
+    loadOpen(stage.flavor);
+    ORDER.filter(k => k !== stage.flavor).reduce((p, k) => p.then(() => loadFlavor(k).done), Promise.resolve());
+  }
+  const checkExtras = () => { if (curtainUp && StageState.extrasDue(extra)) startExtras(); };
+  const GESTURES = ['pointerdown', 'keydown', 'focusin'];
+  const onGesture = e => {
+    if (!(e.target instanceof Element) || !e.target.closest('#sabores, .chip, #ctaWrap')) return;
+    GESTURES.forEach(t => document.removeEventListener(t, onGesture, true));
+    extra.interacted = true; checkExtras();
+  };
+  GESTURES.forEach(t => document.addEventListener(t, onGesture, { capture: true, passive: true }));
+  curtain.then(() => {
+    curtainUp = true;
+    const idle = () => { extra.idle = true; checkExtras(); };
+    if (window.requestIdleCallback) requestIdleCallback(idle); else setTimeout(idle, 1500);
+    checkExtras();
+  });
   function nearest(k, idx) { const a = seq[k]; for (let d = 0; d < NF / 2; d++) { const x = a[(idx + d) % NF] || a[(idx - d + NF) % NF]; if (x) return x; } return null; }
   // el cuadro 0 de cada sabor primero: las vecinas del carrusel lo necesitan desde el arranque
-  ORDER.forEach(k => { const im = new Image(); im.onload = () => { if (!seq[k][0]) seq[k][0] = im; }; im.src = reduced ? stage.thumbs[k] : `${TURN_DIR}/${k}-00.webp`; });
+  ORDER.forEach(k => { const im = new Image(); im.onload = () => { if (!seq[k][0]) seq[k][0] = im; }; im.src = reduced ? stage.thumbs[k] : `${FRAMES_DIR}/${k}-00.webp`; });
   // apertura: 24 cuadros por sabor en lienzo 760x1160 (130 px mas arriba y abajo que el giro, misma escala); el cuadro sale del progreso del riel
   const NO = 24, OP = {}; let OM = null;
-  fetch('assets/open/meta.json', { signal: AbortSignal.timeout(8000) }).then(r => r.json()).then(m => { OM = m; }).catch(e => { console.warn('can2d: open/meta.json', e); });
+  let openMetaAsked = false;
+  function loadOpenMeta() {
+    if (openMetaAsked) return; openMetaAsked = true;
+    fetch('assets/open/meta.json', { signal: AbortSignal.timeout(8000) }).then(r => r.json()).then(m => { OM = m; }).catch(e => { console.warn('can2d: open/meta.json', e); });
+  }
   function loadOpen(k) {
+    loadOpenMeta();
     if (reduced || OP[k]) return; const arr = new Array(NO).fill(null); OP[k] = arr;
     for (let i = 0; i < NO; i++) { const im = new Image(); im.decoding = 'async'; im.onload = () => { arr[i] = im; }; im.src = `assets/open/${k}-${String(i).padStart(2, '0')}.webp`; }
   }
@@ -157,12 +209,13 @@
   const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
   addEventListener('pointermove', e => { mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = e.clientY / innerHeight * 2 - 1; }, { passive: true });
   const t0 = performance.now(); let last = t0;
-  const root = document.documentElement;
+  const bg = document.querySelector('.bg'); let glow = null;
   function frame(now) {
     requestAnimationFrame(frame);
-    const sy = scrollY, hide = sy > sabEnd + H * .1 || document.hidden;
-    slots.forEach(o => { if (hide) o.el.style.visibility = 'hidden'; });
-    hit.style.pointerEvents = (hide || (reduced && !heroMode())) ? 'none' : 'auto'; hit.tabIndex = hide ? -1 : 0;
+    if (document.hidden) return;
+    const sy = scrollY, hide = sy > sabEnd + H * .1;
+    if (hide) slots.forEach(o => put(o, 'visibility', 'hidden'));
+    put(hitBox, 'pointerEvents', (hide || (reduced && !heroMode())) ? 'none' : 'auto'); const tabIdx = hide ? -1 : 0; if (hit.tabIndex !== tabIdx) hit.tabIndex = tabIdx;
     if (hide) return;
     const t = (now - t0) / 1000, dt = Math.min((now - last) / 1000, .05); last = now;
     mouse.sx += (mouse.x - mouse.sx) * .06; mouse.sy += (mouse.y - mouse.sy) * .06;
@@ -187,22 +240,22 @@
     for (let i = 0; i < NS; i++) {
       const s = i - 2, u = s - off, au = Math.abs(u), m = Math.min(au, 1), o = slots[i];
       const al = lerp(1, .55 * vis, m) * (1 - clamp(au - 1, 0, 1)) * (m > 0 ? 1 - fq : 1);
-      if (al < .01) { o.el.style.visibility = 'hidden'; continue; }
+      if (al < .01) { put(o, 'visibility', 'hidden'); continue; }
       const k = ORDER[(((ci + s) % n) + n) % n], front = s === 0 && k === stage.flavor;
       if (!(front && stage.openQ > 0 && drawOpen(o, k, stage.openQ))) draw(o, k, front ? ((Math.round(total) % NF) + NF) % NF : 0);
       const bh = bodyH * lerp(1, SS, m), Hi = bh / BF, Wi = Hi * WR, x = cx + u * sp * (1 + fq * .45), y = cy - m * lift;
-      const st = o.el.style;
-      st.visibility = 'visible'; st.opacity = al.toFixed(3); st.zIndex = au < .5 ? 2 : 1;
-      st.filter = m > .01 ? `brightness(${lerp(1, .72, m).toFixed(3)})` : 'none';
-      st.width = Wi + 'px'; st.height = Hi + 'px'; if (front) stage.geom = { l: x - Wi / 2, t: y - Hi * CYF, W: Wi, H: Hi };
-      st.transform = `translate3d(${x - Wi / 2}px,${y - Hi * CYF}px,0) rotate(${rz + clamp(u, -1.5, 1.5) * 4}deg)`;
+      put(o, 'visibility', 'visible'); put(o, 'opacity', al.toFixed(3)); put(o, 'zIndex', au < .5 ? 2 : 1);
+      put(o, 'filter', m > .01 ? `brightness(${lerp(1, .72, m).toFixed(3)})` : 'none');
+      put(o, 'width', Wi + 'px'); put(o, 'height', Hi + 'px'); if (front) stage.geom = { l: x - Wi / 2, t: y - Hi * CYF, W: Wi, H: Hi };
+      put(o, 'transform', `translate3d(${x - Wi / 2}px,${y - Hi * CYF}px,0) rotate(${rz + clamp(u, -1.5, 1.5) * 4}deg)`);
     }
     const Hi0 = bodyH / BF, Wi = Hi0 * WR, hm = heroMode();
     pw = Math.max(200, Wi * 1.1);
-    hit.style.width = (hm ? W : Math.max(44, Wi * .8)) + 'px'; hit.style.height = Math.max(44, bodyH) + 'px';
-    hit.style.transform = `translate3d(${hm ? 0 : cx - Wi * .4}px,${cy - bodyH / 2}px,0)`;
+    put(hitBox, 'width', (hm ? W : Math.max(44, Wi * .8)) + 'px'); put(hitBox, 'height', Math.max(44, bodyH) + 'px');
+    put(hitBox, 'transform', `translate3d(${hm ? 0 : cx - Wi * .4}px,${cy - bodyH / 2}px,0)`);
     stage.pose.x = cx; stage.pose.y = cy; stage.pose.h = bodyH;
-    root.style.setProperty('--gx', (cx / W * 100).toFixed(1) + '%'); root.style.setProperty('--gy', (cy / H * 100).toFixed(1) + '%');
+    const nextGlow = { x: (cx / W * 100).toFixed(1) + '%', y: (cy / H * 100).toFixed(1) + '%' };
+    if (StageState.glowChanged(glow, nextGlow)) { glow = nextGlow; bg.style.setProperty('--gx', glow.x); bg.style.setProperty('--gy', glow.y); }
     // burbujas planas
     cx2.setTransform(dpr, 0, 0, dpr, 0, 0); cx2.clearRect(0, 0, W, H);
     const ink = F[stage.flavor].label.ink; cx2.strokeStyle = ink; cx2.fillStyle = ink; cx2.lineWidth = 1.4;
