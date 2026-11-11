@@ -77,3 +77,4 @@ probe loading: node .claude/tools/app.mjs probe specs/CEB-1-loading-screen/steps
 - L8 · 2026-11-11 · T5 · Fraunces roman solo en .odo .col i (digitos 0-9); subset a U+0030-0039 con los 4 ejes: 9,5 KB, total 188,5 KB; static-budget pasa
 - L9 · 2026-11-11 · T3 · filter sobre .glow costaba ~2 s de DrawFrame por scroll en el compositor por software; el brightness de --fq pasa al color del degradado (mismo resultado en pixeles de fondo)
 - L10 · 2026-11-11 · kit: mutate.mjs ignores every equivalents line written with CRLF (its LINE regex ends in (.+)$ and . does not match \r); the file was converted to LF
+- L11 · 2026-11-11 · T3 · frame-queue.js (once + watchGeometry) reemplaza el codigo rAF duplicado de main.js y shop.js; test/frame-queue.test.mjs 2 pass; el catch de copiar direccion avisa con console.warn
