@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
-<div class="curtain" aria-hidden="true"><span class="curtain-mark">Cebador</span></div>
+<div class="curtain" role="status" aria-live="polite"><span class="curtain-mark" aria-hidden="true">Cebador</span><div class="curtain-bar" role="progressbar" aria-label="Carga de la página" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div><p class="curtain-status">Cargando 0 %</p></div>
 <div class="ring" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
@@ -196,5 +196,6 @@
 <script src="main.js"></script>
 <script src="shop.js"></script>
 <script src="cta.js"></script>
+<script type="module" src="src/modules/loader/presentation/loader.js"></script>
 </body>
 </html>

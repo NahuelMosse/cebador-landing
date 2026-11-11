@@ -31,15 +31,18 @@
   // cuadros: 0, 24, 12, 36... para que haya giro usable desde el primer momento
   const seq = {}, got = {}; ORDER.forEach(k => { seq[k] = new Array(NF).fill(null); got[k] = 0; });
   const ord = []; for (const st of [24, 12, 6, 3, 1]) for (let i = 0; i < NF; i += st) if (!ord.includes(i)) ord.push(i);
+  const firstKey = stage.flavor;
+  stage.progress = { loaded: 0, total: reduced ? 1 : NF };
+  const report = (k, n) => { if (k !== firstKey) return; stage.progress.loaded = n; window.dispatchEvent(new CustomEvent('can:progress')); };
   function loadFlavor(k) {
     return new Promise(res => {
-      if (reduced) { const im = new Image(); im.onload = () => { seq[k][0] = im; res(); }; im.onerror = res; im.src = stage.thumbs[k]; return; }
+      if (reduced) { const im = new Image(); im.onload = () => { seq[k][0] = im; report(k, 1); res(); }; im.onerror = () => { report(k, 1); res(); }; im.src = stage.thumbs[k]; return; }
       let n = 0, pos = 0, inflight = 0;
       const next = () => {
         while (inflight < 3 && pos < ord.length) {
           const i = ord[pos++]; inflight++;
           const im = new Image(); im.decoding = 'async';
-          im.onload = im.onerror = () => { if (im.naturalWidth) { seq[k][i] = im; got[k]++; } inflight--; if (++n === NF) res(); else next(); };
+          im.onload = im.onerror = () => { if (im.naturalWidth) { seq[k][i] = im; got[k]++; } inflight--; report(k, ++n); if (n === NF) res(); else next(); };
           im.src = `${TURN_DIR}/${k}-${String(i).padStart(2, '0')}.webp`;
         }
       };

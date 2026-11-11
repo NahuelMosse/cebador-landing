@@ -181,13 +181,15 @@
     if (started) return; started = true;
     window.__introStart = performance.now();
     const S = window.CanStage.S;
+    const leave = window.CebadorLoader ? window.CebadorLoader.leave({ reduced: !g || reduced }) : Promise.resolve();
+    if (!window.CebadorLoader) $('.curtain').style.display = 'none';
     if (!g || reduced) {
       S.drop = 0; S.fruit = 1; S.bub = 1;
-      $('.curtain').style.display = 'none'; $$('[data-in], .hw').forEach(e => e.style.opacity = 1); html.dataset.ready = '1'; return;
+      $$('[data-in], .hw').forEach(e => e.style.opacity = 1); html.dataset.ready = '1'; return;
     }
     const hw = $$('[data-hw]'); const chars = hw.map(splitChars);
     g.set(chars.flat(), { yPercent: 34, rotation: 5, transformOrigin: '0 100%' });
-    const tl = g.timeline({ defaults: { ease: 'power3.out' }, onComplete() { html.dataset.ready = '1'; } });
+    const tl = g.timeline({ paused: true, defaults: { ease: 'power3.out' }, onComplete() { html.dataset.ready = '1'; } });
     tl.to(chars[0], { yPercent: 0, rotation: 0, duration: .8, stagger: .035 }, 0)
       .to(chars[1], { yPercent: 0, rotation: 0, duration: .8, stagger: .03 }, .25)
       .to(S, { drop: 0, duration: 1.2, ease: 'power3.out' }, 0)
@@ -197,6 +199,7 @@
       .fromTo('.dock', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .8 }, .75)
       .fromTo('.h-scroll', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: .7 }, 1);
     tl.timeScale(1.2);
+    g.delayedCall(.45, () => tl.play());
   }
   function boot(ok) {
     stageOk = ok;
