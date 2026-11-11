@@ -22,11 +22,12 @@
 /* foco de la apertura (--fq 0..1 sigue al riel): las palabras se apartan, el fondo y el resto del hero bajan */
 .h-back { transform: translateX(calc(var(--fq, 0) * -18vw)); opacity: calc(1 - var(--fq, 0) * 2.2); }
 .h-front { transform: translateX(calc(var(--fq, 0) * 18vw)); opacity: calc(1 - var(--fq, 0) * 2.2); }
-.bg { filter: brightness(calc(1 - var(--fq, 0) * .4)); }
+.bg, .glow { filter: brightness(calc(1 - var(--fq, 0) * .4)); }
 .nav .logo, .nav .pill { opacity: calc(1 - var(--fq, 0) * .7); }
 .dock-copy, .chips { opacity: calc(1 - var(--fq, 0) * .85); }
 .h-scroll { opacity: calc(1 - var(--fq, 0)); }
 @media (prefers-reduced-motion: reduce) { .h-back, .h-front, .bg, .nav .logo, .nav .pill, .dock-copy, .chips, .h-scroll { transform: none; opacity: 1; filter: none; } }
+@media (prefers-reduced-motion: reduce) { .glow { filter: none; } }
 
 /* la lista de sabores ocupa todo el ancho: no tapa la zona de arrastre de la lata */
 .sab-list { pointer-events: none; }

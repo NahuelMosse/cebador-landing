@@ -209,7 +209,7 @@
   const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
   addEventListener('pointermove', e => { mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = e.clientY / innerHeight * 2 - 1; }, { passive: true });
   const t0 = performance.now(); let last = t0;
-  const bg = document.querySelector('.bg'); let glow = null;
+  const glowEl = document.querySelector('.glow'); let glow = null;
   // sin entrada durante 3 s tras la intro, el balanceo y las burbujas descansan (la ultima imagen queda dibujada) y el cuadro no escribe nada
   const html = document.documentElement; let lastInput = performance.now(), swayT = 0;
   const wake = () => { lastInput = performance.now(); };
@@ -261,8 +261,8 @@
     put(hitBox, 'width', (hm ? W : Math.max(44, Wi * .8)) + 'px'); put(hitBox, 'height', Math.max(44, bodyH) + 'px');
     put(hitBox, 'transform', `translate3d(${hm ? 0 : cx - Wi * .4}px,${cy - bodyH / 2}px,0)`);
     stage.pose.x = cx; stage.pose.y = cy; stage.pose.h = bodyH;
-    const nextGlow = { x: (cx / W * 100).toFixed(1) + '%', y: (cy / H * 100).toFixed(1) + '%' };
-    if (StageState.glowChanged(glow, nextGlow)) { glow = nextGlow; bg.style.setProperty('--gx', glow.x); bg.style.setProperty('--gy', glow.y); }
+    const nextGlow = { x: Math.round(cx - W * .34), y: Math.round(cy - H * .58) };
+    if (StageState.glowChanged(glow, nextGlow)) { glow = nextGlow; glowEl.style.transform = `translate3d(${glow.x}px,${glow.y}px,0)`; }
     if (rest) return;
     // burbujas planas
     cx2.setTransform(dpr, 0, 0, dpr, 0, 0); cx2.clearRect(0, 0, W, H);
