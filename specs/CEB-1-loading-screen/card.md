@@ -32,12 +32,11 @@ not_read: none (no attachments or links)
 ## Gate
 
 ```
-suite: node --test --test-force-exit test/loader-state.test.mjs test/loader-state-defaults.test.mjs
+suite: node --test --test-force-exit test/loader-state.test.mjs test/loader-state-defaults.test.mjs test/loader-state-loaded-default.test.mjs
 lint: node --check src/modules/loader/presentation/loader-state.js
-mutate src/modules/loader/presentation/loader-state.js: node --test --test-force-exit test/loader-state.test.mjs test/loader-state-defaults.test.mjs
+mutate src/modules/loader/presentation/loader-state.js: node --test --test-force-exit test/loader-state.test.mjs test/loader-state-defaults.test.mjs test/loader-state-loaded-default.test.mjs
 app: python -c "import os,http.server as h; h.ThreadingHTTPServer(('127.0.0.1', int(os.environ['PORT'])), h.SimpleHTTPRequestHandler).serve_forever()"
 probe loading: node .claude/tools/app.mjs probe specs/CEB-1-loading-screen/steps/loading.json --axe --contrast ".curtain-status" --route "GET /assets/turn-b4/meta.json=hold" --out .validation/probe/loading
-overflow: node .claude/tools/overflow.mjs --only .curtain
 ```
 
 - declared · mutate · src/modules/loader/presentation/loader.js · DOM wiring only: every decision it shows comes from loader-state.js
@@ -47,3 +46,4 @@ overflow: node .claude/tools/overflow.mjs --only .curtain
 ## Log
 
 - L1 · quiero que usando el kit de mi gh sobre debador le pongas una pantalla de carga
+- L2 · 2026-11-11 · OUT · the page scrolls sideways at 320 px (Sabores 352 px, Comprar 342 px wide), present on main before this card; overflow line dropped, the curtain itself fits
