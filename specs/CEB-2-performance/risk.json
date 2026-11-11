@@ -1,0 +1,30 @@
+{
+  "size": "large",
+  "review": "medium",
+  "lenses": [
+    "visual"
+  ],
+  "modules": [
+    "ui"
+  ],
+  "signals": [
+    "screen"
+  ],
+  "words": [],
+  "files": [
+    "src/modules/stage/presentation/stage-state.js",
+    "test/stage-state.test.mjs",
+    "can2d.js",
+    "assets/turn-sm/",
+    "index.html",
+    "main.js",
+    "shop.js",
+    "styles.css",
+    "assets/grain.webp",
+    "fonts/Fraunces.woff2",
+    "fonts/Fraunces-Italic.woff2",
+    "fonts/SchibstedGrotesk.woff2",
+    "fonts.css"
+  ],
+  "tasks": 5
+}
