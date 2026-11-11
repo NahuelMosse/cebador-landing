@@ -24,8 +24,7 @@ function leave({ reduced }) {
   if (exit === 'none' || !window.gsap) { remove(); return Promise.resolve(); }
   return new Promise(resolve => {
     gsap.timeline({ onComplete() { remove(); resolve(); } })
-      .to([status, bar], { opacity: 0, duration: .25, ease: 'power2.out' }, 0)
-      .to(curtain, { yPercent: -100, duration: .8, ease: 'expo.inOut' }, .15);
+      .to(curtain, { yPercent: -100, duration: .8, ease: 'expo.inOut' }, 0);
   });
 }
 
