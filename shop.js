@@ -134,7 +134,7 @@
   });
   list.addEventListener('click', e => {
     const b = e.target.closest('.copy'); if (!b) return;
-    try { navigator.clipboard && navigator.clipboard.writeText(b.dataset.a).catch(() => { }); } catch (_) { }
+    try { navigator.clipboard && navigator.clipboard.writeText(b.dataset.a).catch(e => console.warn('copy address failed', e)); } catch (e) { console.warn('copy address failed', e); }
     b.textContent = 'Copiada ✓'; b.dataset.done = 'true'; toast('Dirección copiada');
     setTimeout(() => { b.textContent = 'Copiar dirección'; b.dataset.done = 'false'; }, 1600);
   });
