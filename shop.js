@@ -171,13 +171,8 @@
     archOpacity = op; arch.style.opacity = op;
   }
   function measureGeo() { geo.H = innerHeight; geo.top = sab.offsetTop; geo.height = sab.offsetHeight; paintScroll(); }
-  let scrollQueued = false;
-  const onScroll = () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; paintScroll(); }); };
-  let measureQueued = false;
-  const queueMeasure = () => { if (measureQueued) return; measureQueued = true; requestAnimationFrame(() => { measureQueued = false; measureGeo(); }); };
-  addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('load', measureGeo); addEventListener('resize', queueMeasure); document.fonts.ready.then(measureGeo);
-  new ResizeObserver(queueMeasure).observe(document.body);
+  addEventListener('scroll', FrameQueue.once(paintScroll), { passive: true });
+  FrameQueue.watchGeometry(measureGeo);
   measureGeo();
 
   renderCart(); refresh();

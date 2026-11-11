@@ -124,13 +124,8 @@
     par.forEach(p => { const ty = (p.center - y - geo.vh / 2) * p.k; if (ty === p.ty) return; p.ty = ty; p.el.style.translate = `0 ${ty}px`; });
     updActive(y);
   }
-  let scrollQueued = false;
-  const onScroll = () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; paintScroll(); }); };
-  let measureQueued = false;
-  const queueMeasure = () => { if (measureQueued) return; measureQueued = true; requestAnimationFrame(() => { measureQueued = false; measureGeo(); }); };
-  addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('load', measureGeo); addEventListener('resize', queueMeasure); document.fonts.ready.then(measureGeo);
-  new ResizeObserver(queueMeasure).observe(document.body);
+  addEventListener('scroll', FrameQueue.once(paintScroll), { passive: true });
+  FrameQueue.watchGeometry(measureGeo);
   measureGeo();
 
   /* ---------- cursor y magnéticos ---------- */
