@@ -1,0 +1,18 @@
+# Tells NahuelMosse/lab that this project's main changed, so the lab rebuilds lab.nawi.dev with it.
+name: notify lab
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send project-updated to the lab
+        env:
+          GH_TOKEN: ${{ secrets.LAB_DISPATCH_TOKEN }}
+        run: |
+          gh api repos/NahuelMosse/lab/dispatches \
+            -f event_type=project-updated \
+            -f "client_payload[repo]=${{ github.repository }}" \
+            -f "client_payload[sha]=${{ github.sha }}"
