@@ -35,7 +35,7 @@ not_read: none (no attachments or links)
 suite: node --test --test-force-exit test/loader-state.test.mjs
 lint: node --check src/modules/loader/presentation/loader-state.js
 mutate src/modules/loader/presentation/loader-state.js: node --test --test-force-exit test/loader-state.test.mjs
-app: python -m http.server $PORT --bind 127.0.0.1
+app: python -c "import os,http.server as h; h.ThreadingHTTPServer(('127.0.0.1', int(os.environ['PORT'])), h.SimpleHTTPRequestHandler).serve_forever()"
 probe loading: node .claude/tools/app.mjs probe specs/CEB-1-loading-screen/steps/loading.json --axe --contrast ".curtain-status" --route "GET /assets/turn-b4/pomelo-00.webp=hold" --out .validation/probe/loading
 overflow: node .claude/tools/overflow.mjs --only .curtain
 ```
