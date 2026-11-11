@@ -8,8 +8,7 @@ const status = curtain.querySelector('.curtain-status');
 function render(extra = {}) {
   const { loaded, total } = window.CanStage ? window.CanStage.progress : {};
   const state = loaderState({ loaded, total, ...extra });
-  bar.style.setProperty('--p', state.pct / 100);
-  bar.setAttribute('aria-valuenow', state.pct);
+  bar.value = state.pct;
   status.textContent = state.label;
   return state;
 }

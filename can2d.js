@@ -20,7 +20,13 @@
     slots.push({ el, c, g: c.getContext('2d'), key: '' });
   }
   const holder = slots[2].el;
-  fetch(`${TURN_DIR}/meta.json`).then(r => r.json()).then(m => { BF = m.BF; WR = m.WR; CYF = m.CYF; slots.forEach(o => { o.el.style.transformOrigin = `50% ${CYF * 100}%`; }); }).catch(() => { });
+  const firstKey = stage.flavor;
+  stage.progress = { loaded: 0, total: (reduced ? 1 : NF) + 1 };
+  let frames = 0, metaDone = 0;
+  const publish = () => { stage.progress.loaded = frames + metaDone; window.dispatchEvent(new CustomEvent('can:progress')); };
+  const report = (k, n) => { if (k !== firstKey) return; frames = n; publish(); };
+  const metaIn = fetch(`${TURN_DIR}/meta.json`, { signal: AbortSignal.timeout(8000) }).then(r => r.json()).then(m => { BF = m.BF; WR = m.WR; CYF = m.CYF; slots.forEach(o => { o.el.style.transformOrigin = `50% ${CYF * 100}%`; }); })
+    .catch(e => { console.warn('can2d: meta.json', e); }).then(() => { metaDone = 1; publish(); });
 
   // zona tactil sobre la lata: desliza en horizontal para girar, el scroll vertical sigue siendo del navegador
   const hit = document.createElement('div'); hit.id = 'canhit'; hit.tabIndex = 0; hit.setAttribute('role', 'group');
@@ -31,9 +37,6 @@
   // cuadros: 0, 24, 12, 36... para que haya giro usable desde el primer momento
   const seq = {}, got = {}; ORDER.forEach(k => { seq[k] = new Array(NF).fill(null); got[k] = 0; });
   const ord = []; for (const st of [24, 12, 6, 3, 1]) for (let i = 0; i < NF; i += st) if (!ord.includes(i)) ord.push(i);
-  const firstKey = stage.flavor;
-  stage.progress = { loaded: 0, total: reduced ? 1 : NF };
-  const report = (k, n) => { if (k !== firstKey) return; stage.progress.loaded = n; window.dispatchEvent(new CustomEvent('can:progress')); };
   function loadFlavor(k) {
     return new Promise(res => {
       if (reduced) { const im = new Image(); im.onload = () => { seq[k][0] = im; report(k, 1); res(); }; im.onerror = () => { report(k, 1); res(); }; im.src = stage.thumbs[k]; return; }
@@ -50,7 +53,7 @@
     });
   }
   const first = () => loadFlavor(stage.flavor);
-  stage.ready = first().then(() => true);
+  stage.ready = Promise.all([first(), metaIn]).then(() => true);
   stage.ready.then(() => loadOpen(stage.flavor));
   stage.ready.then(() => ORDER.filter(k => k !== stage.flavor).reduce((p, k) => p.then(() => loadFlavor(k)), Promise.resolve()));
   function nearest(k, idx) { const a = seq[k]; for (let d = 0; d < NF / 2; d++) { const x = a[(idx + d) % NF] || a[(idx - d + NF) % NF]; if (x) return x; } return null; }
@@ -58,7 +61,7 @@
   ORDER.forEach(k => { const im = new Image(); im.onload = () => { if (!seq[k][0]) seq[k][0] = im; }; im.src = reduced ? stage.thumbs[k] : `${TURN_DIR}/${k}-00.webp`; });
   // apertura: 24 cuadros por sabor en lienzo 760x1160 (130 px mas arriba y abajo que el giro, misma escala); el cuadro sale del progreso del riel
   const NO = 24, OP = {}; let OM = null;
-  fetch('assets/open/meta.json').then(r => r.json()).then(m => { OM = m; }).catch(() => { });
+  fetch('assets/open/meta.json', { signal: AbortSignal.timeout(8000) }).then(r => r.json()).then(m => { OM = m; }).catch(e => { console.warn('can2d: open/meta.json', e); });
   function loadOpen(k) {
     if (reduced || OP[k]) return; const arr = new Array(NO).fill(null); OP[k] = arr;
     for (let i = 0; i < NO; i++) { const im = new Image(); im.decoding = 'async'; im.onload = () => { arr[i] = im; }; im.src = `assets/open/${k}-${String(i).padStart(2, '0')}.webp`; }

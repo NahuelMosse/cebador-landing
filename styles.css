@@ -50,10 +50,12 @@ ul { list-style: none; }
 /* cortina de carga */
 .curtain { display: none; }
 .js .curtain { position: fixed; inset: 0; z-index: 80; display: grid; place-content: center; justify-items: center; gap: 20px; background: var(--bg2); }
-.curtain-bar { width: min(240px, 60vw); height: 2px; border-radius: 2px; overflow: hidden; background: color-mix(in oklab, var(--c4) 22%, transparent); }
-.curtain-bar i { display: block; height: 100%; background: var(--c4); transform: scaleX(var(--p, 0)); transform-origin: left; transition: transform 300ms var(--out); }
+.curtain-bar { appearance: none; border: 0; width: min(240px, 60vw); height: 2px; border-radius: 2px; overflow: hidden; background: color-mix(in oklab, var(--c4) 22%, transparent); color: var(--c4); }
+.curtain-bar::-webkit-progress-bar { background: color-mix(in oklab, var(--c4) 22%, transparent); }
+.curtain-bar::-webkit-progress-value { background: var(--c4); transition: width 300ms var(--out); }
+.curtain-bar::-moz-progress-bar { background: var(--c4); }
 .curtain-status { font: 500 13px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--paper); font-variant-numeric: tabular-nums; }
-@media (prefers-reduced-motion: reduce) { .curtain-bar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .curtain-bar::-webkit-progress-value { transition: none; } }
 .curtain-mark { font: italic 900 clamp(48px, 9vw, 120px)/1 var(--display); font-variation-settings: 'SOFT' 100, 'WONK' 1; color: var(--c4); letter-spacing: -.02em; }
 .js .curtain-mark { opacity: 0; animation: mark-in 700ms var(--out) 80ms forwards; }
 @keyframes mark-in { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }

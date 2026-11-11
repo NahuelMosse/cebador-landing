@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
-<div class="curtain" role="status" aria-live="polite"><span class="curtain-mark" aria-hidden="true">Cebador</span><div class="curtain-bar" role="progressbar" aria-label="Carga de la página" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div><p class="curtain-status">Cargando 0 %</p></div>
+<section class="curtain" aria-label="Carga de la página"><span class="curtain-mark" aria-hidden="true">Cebador</span><progress class="curtain-bar" max="100" value="0" aria-label="Carga de la página"></progress><p class="curtain-status" role="status" aria-live="polite">Cargando 0 %</p></section>
 <div class="ring" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
@@ -158,7 +158,7 @@
 
 <footer class="foot">
   <div class="foot-top">
-    <form class="news" id="news" novalidate>
+    <form class="news" id="news" method="post" novalidate>
       <label for="mail">Enterate primero cuando salga el próximo sabor.</label>
       <div class="news-row"><input id="mail" type="email" placeholder="tu@mail.com" autocomplete="email" required aria-describedby="newsMsg"><button class="btn btn-light" type="submit">Avisame</button></div>
       <p class="news-msg" id="newsMsg" role="status"></p>
