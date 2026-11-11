@@ -29,7 +29,7 @@
     .catch(e => { console.warn('can2d: meta.json', e); }).then(() => { metaDone = 1; publish(); });
 
   // zona tactil sobre la lata: desliza en horizontal para girar, el scroll vertical sigue siendo del navegador
-  const hit = document.createElement('div'); hit.id = 'canhit'; hit.tabIndex = 0; hit.setAttribute('role', 'group');
+  const hit = document.createElement('div'); hit.id = 'canhit'; hit.tabIndex = 0; hit.setAttribute('role', 'region');
   hit.setAttribute('aria-label', 'Latas Cebador: arrastralas o usa las flechas izquierda y derecha para cambiar de sabor');
   hit.style.cssText = 'position:fixed;left:0;top:0;z-index:3;touch-action:pan-y;cursor:grab;pointer-events:none;outline-offset:-4px;-webkit-user-select:none;user-select:none;';
   document.body.insertBefore(hit, slots[NS - 1].el.nextSibling);
