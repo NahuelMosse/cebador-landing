@@ -36,7 +36,10 @@ test('a loop stops once it has settled @CEB-2-S3', () => {
   assert.equal(S.settled({ x: 10, y: 20 }, { x: 10, y: 20.2 }), false);
   assert.equal(S.settled({ x: 10, y: 20 }, { x: 9.8, y: 20 }), false);
   assert.equal(S.settled({ x: 10, y: 20 }, { x: 10, y: 19.8 }), false);
-  assert.equal(S.settled({ x: 10, y: 20 }, { x: 10.1, y: 20 }), false);
+  assert.equal(S.settled({ x: 10, y: 20 }, { x: 10.125, y: 20 }), false);
+  assert.equal(S.settled({ x: 10, y: 20 }, { x: 10.0625, y: 20 }), true);
+  assert.equal(S.settled({ x: 0, y: 0 }, { x: 0.5, y: 0 }, 0.5), false);
+  assert.equal(S.settled({ x: 0, y: 0 }, { x: 0, y: 0.5 }, 0.5), false);
   assert.equal(S.settled({ x: 10, y: 20 }, { x: 10.5, y: 20 }, 1), true);
   assert.equal(S.settled({ x: 10, y: 20 }, { x: 11.5, y: 20 }, 1), false);
 });
