@@ -1,0 +1,24 @@
+{
+  "size": "large",
+  "review": "medium",
+  "lenses": [
+    "visual"
+  ],
+  "modules": [
+    "ui"
+  ],
+  "signals": [
+    "screen"
+  ],
+  "words": [],
+  "files": [
+    "src/modules/loader/presentation/loader-state.js",
+    "test/loader-state.test.mjs",
+    "src/modules/loader/presentation/loader.js",
+    "index.html",
+    "styles.css",
+    "can2d.js",
+    "main.js"
+  ],
+  "tasks": 2
+}
