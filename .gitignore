@@ -5,3 +5,4 @@ Thumbs.db
 .playwright-mcp/
 __pycache__/
 .env
+.validation/
